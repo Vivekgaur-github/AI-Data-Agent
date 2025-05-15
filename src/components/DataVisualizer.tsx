@@ -56,6 +56,108 @@ const DataVisualizer: React.FC<DataVisualizerProps> = ({ data }) => {
     );
   }
 
+  const renderChart = () => {
+    if (!data.chartData || data.chartData.length === 0) return null;
+
+    switch (data.chartType) {
+      case 'bar':
+        return (
+          <BarChart data={data.chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Bar dataKey="revenue" name="Revenue" fill="#8B5CF6" />
+            {data.chartData[0] && data.chartData[0].customers > 0 && (
+              <Bar dataKey="customers" name="Customers" fill="#3B82F6" />
+            )}
+          </BarChart>
+        );
+      case 'line':
+        return (
+          <LineChart data={data.chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              name="Revenue"
+              stroke="#8B5CF6"
+              activeDot={{ r: 8 }}
+            />
+            {data.chartData[0] && data.chartData[0].customers > 0 && (
+              <Line
+                type="monotone"
+                dataKey="customers"
+                name="Customers"
+                stroke="#3B82F6"
+                activeDot={{ r: 6 }}
+              />
+            )}
+          </LineChart>
+        );
+      case 'pie':
+        return (
+          <PieChart>
+            <Pie
+              data={data.chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={true}
+              outerRadius={150}
+              fill="#8B5CF6"
+              dataKey="customers"
+              nameKey="month"
+              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            >
+              {data.chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+          </PieChart>
+        );
+      case 'area':
+        return (
+          <AreaChart data={data.chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Area
+              type="monotone"
+              dataKey="revenue"
+              name="Revenue"
+              stroke="#8B5CF6"
+              fill="#8B5CF6"
+              fillOpacity={0.3}
+            />
+            {data.chartData[0] && data.chartData[0].customers > 0 && (
+              <Area
+                type="monotone"
+                dataKey="customers"
+                name="Customers"
+                stroke="#3B82F6"
+                fill="#3B82F6"
+                fillOpacity={0.3}
+              />
+            )}
+          </AreaChart>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Alert>
@@ -70,98 +172,7 @@ const DataVisualizer: React.FC<DataVisualizerProps> = ({ data }) => {
               customers: { label: "Customers" },
             }}
           >
-            {data.chartType === 'bar' && (
-              <BarChart data={data.chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip content={<ChartTooltipContent />} />
-                <Legend />
-                <Bar dataKey="revenue" name="Revenue" fill="#8B5CF6" />
-                {data.chartData[0] && data.chartData[0].customers > 0 && (
-                  <Bar dataKey="customers" name="Customers" fill="#3B82F6" />
-                )}
-              </BarChart>
-            )}
-            
-            {data.chartType === 'line' && (
-              <LineChart data={data.chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip content={<ChartTooltipContent />} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  name="Revenue"
-                  stroke="#8B5CF6"
-                  activeDot={{ r: 8 }}
-                />
-                {data.chartData[0] && data.chartData[0].customers > 0 && (
-                  <Line
-                    type="monotone"
-                    dataKey="customers"
-                    name="Customers"
-                    stroke="#3B82F6"
-                    activeDot={{ r: 6 }}
-                  />
-                )}
-              </LineChart>
-            )}
-            
-            {data.chartType === 'pie' && (
-              <PieChart>
-                <Pie
-                  data={data.chartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  outerRadius={150}
-                  fill="#8B5CF6"
-                  dataKey="customers"
-                  nameKey="month"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {data.chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<ChartTooltipContent />} />
-                <Legend />
-              </PieChart>
-            )}
-            
-            {data.chartType === 'area' && (
-              <AreaChart data={data.chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip content={<ChartTooltipContent />} />
-                <Legend />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  name="Revenue"
-                  stroke="#8B5CF6"
-                  fill="#8B5CF6"
-                  fillOpacity={0.3}
-                />
-                {data.chartData[0] && data.chartData[0].customers > 0 && (
-                  <Area
-                    type="monotone"
-                    dataKey="customers"
-                    name="Customers"
-                    stroke="#3B82F6"
-                    fill="#3B82F6"
-                    fillOpacity={0.3}
-                  />
-                )}
-              </AreaChart>
-            )}
+            {renderChart()}
           </ChartContainer>
         </div>
       )}
